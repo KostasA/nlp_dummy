@@ -40,6 +40,11 @@ def extract_number(text):
         return match.group(0)  
     return None
 
+# Function to validate phone number format
+def validate_number_format(text):
+    match = re.fullmatch(r'\d{10}', text)
+    return bool(match)
+
 # Function to process the input from the GUI
 def process_input(user_input):
     doc = nlp(user_input)
@@ -86,6 +91,17 @@ def set_placeholder(event):
         input_box.insert("1.0", placeholder_text)
         input_box.config(fg="gray")
 
+# Function to provide real-time validation feedback
+def validate_input(event):
+    text = input_box.get("1.0", tk.END).strip()
+    number = extract_number(text)
+    if number and validate_number_format(number):
+        input_box.config(bg="white")  # Reset background color
+        status_bar.config(text="Status: Valid phone number")
+    else:
+        input_box.config(bg="pink")  # Highlight invalid input
+        status_bar.config(text="Status: Invalid phone number")
+
 # Placeholder text with three sentences, one on each line
 placeholder_text = (
     "I want to create a new subscriber with number 302103181020\n"
@@ -94,6 +110,9 @@ placeholder_text = (
 )
 
 def create_gui():
+    global input_box
+    global status_bar
+
     root = tk.Tk()
     root.title("Configuration Assistant")
     root.geometry("600x400")  
@@ -112,13 +131,13 @@ def create_gui():
     label_instruction = tk.Label(frame_main, text="Type a request or use the proposed actions below:")
     label_instruction.pack(pady=5)
 
-    global input_box
     input_box = tk.Text(frame_main, height=10, width=70, fg="gray", font=("Helvetica", 12))
     input_box.insert("1.0", placeholder_text)
     input_box.pack(pady=10)
 
     input_box.bind("<FocusIn>", clear_placeholder)
     input_box.bind("<FocusOut>", set_placeholder)
+    input_box.bind("<KeyRelease>", validate_input)  # Bind validation function
 
     submit_button = tk.Button(frame_main, text="Submit", width=20, command=lambda: process_input(input_box.get("1.0", tk.END)))
     submit_button.pack(pady=10)
