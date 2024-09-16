@@ -74,6 +74,23 @@ def process_input(user_input):
     else:
         messagebox.showerror("Error", "No matches found.")
 
+# Function to clear the placeholder text
+def clear_placeholder(event):
+    if input_box.get() == "Enter your request here...":
+        input_box.delete(0, tk.END)
+        input_box.config(fg="black")
+
+# Function to set the placeholder text if the box is empty
+def set_placeholder(event):
+    if not input_box.get("1.0", tk.END).strip():
+        input_box.insert("1.0", placeholder_text)
+        input_box.config(fg="gray")
+# Placeholder text with three sentences, one on each line
+placeholder_text = (
+    "I want to create a new subscriber with number 6867110001\n"
+    "I want to add the service csta to the dn 302103181020\n"
+    "I want to do a basic call from 6867110001 to 6867110002"
+)
 
 # Create the main application window
 def create_gui():
@@ -81,23 +98,25 @@ def create_gui():
     root = tk.Tk()
     root.title("SOAP Request Input")
 
-    # Create and configure a text entry box
-    label = tk.Label(root, text="Enter command:")
-    label.pack(pady=10)
-    
-    input_box = tk.Entry(root, width=50)
+    # Instruction label
+    label_instruction = tk.Label(root, text="Type a request or use the proposed actions below:")
+    label_instruction.pack(pady=5)
+
+    # Input box with placeholder text
+    global input_box
+    input_box = tk.Text(root, height=10, width=70, fg="gray")
+    input_box.insert("1.0", placeholder_text)  # Default placeholder text
     input_box.pack(pady=10)
 
-    # Function to get the input when the button is pressed
-    def on_submit():
-        user_input = input_box.get()
-        process_input(user_input)
+    # Bind events to handle placeholder text
+    input_box.bind("<FocusIn>", clear_placeholder)
+    input_box.bind("<FocusOut>", set_placeholder)
 
-    # Create a button that triggers the on_submit function
-    submit_button = tk.Button(root, text="Submit", command=on_submit)
+    # Button to process the input
+    submit_button = tk.Button(root, text="Submit", command=lambda: process_input(input_box.get()))
     submit_button.pack(pady=10)
 
-    # Run the application
+    # Run the GUI event loop
     root.mainloop()
 
 # Run the GUI
